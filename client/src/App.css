@@ -1,0 +1,43 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Montserrat", sans-serif;
+}
+.app {
+  min-height: 100vh;
+}
+.home_container {
+  width: 100vw;
+  height: 100vh;
+}
+.home_img {
+  background: url("https://picsum.photos/1920/1080");
+  background-size: cover;
+  background-position: center;
+}
+.chatContainer {
+  width: "100%";
+  background: url("../public/img/chatBackGround.png");
+  color: "#FFF";
+}
+.brand {
+  font-family: Righteous, cursive;
+}
+::-webkit-scrollbar {
+  width: 0;
+}
+::-webkit-scrollbar-thumb {
+  background: #003de87e;
+}
+::-webkit-slider-thumb:hover {
+  background: #003de8;
+}
+.message {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  scrollbar-width: none;
+  overflow-y: scroll;
+  width: 100%;
+}
