@@ -7,8 +7,8 @@ const messageSchema = new mongoose.Schema(
       ref: "User",
     },
     content: {
-      type: String,
-      trim: true,
+      text: { type: String, trim: true },
+      images: { type: Array },
     },
     chatId: {
       type: mongoose.Schema.Types.ObjectId,

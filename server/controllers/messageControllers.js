@@ -8,6 +8,7 @@ const Chat = require("../models/chat");
 // @access		Private
 const sendMessage = asyncHandler(async (req, res) => {
   const { content, chatId } = req.body;
+  console.log(req.body);
   // check for error
   if (!content || !chatId) {
     return res.status(400).json({
@@ -35,6 +36,7 @@ const sendMessage = asyncHandler(async (req, res) => {
     });
     res.json(message);
   } catch (err) {
+    console.log(err);
     res.status(400);
     throw new Error("Server could not process request");
   }
@@ -46,9 +48,7 @@ const sendMessage = asyncHandler(async (req, res) => {
 const fetchMessage = asyncHandler(async (req, res) => {
   const { chatId } = req.params;
   try {
-    const allMessages = await Message.find({ chatId })
-      .populate("sender", "name image email")
-      .populate("chatId");
+    const allMessages = await Message.find({ chatId }).populate("sender", "name image email").populate("chatId");
     res.json(allMessages);
   } catch (err) {
     res.status(400);

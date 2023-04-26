@@ -1,27 +1,31 @@
-import { Avatar, Box, Button, Divider, FormControl, Heading, IconButton, Input, Text, Tooltip } from "@chakra-ui/react";
+import { Avatar, Box, Divider, FormControl, Heading, IconButton, Image, Input, Text, Tooltip } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { IoIosArrowBack } from "react-icons/io";
+import { IoAddCircleOutline, IoHappyOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
+import io from "socket.io-client";
 import { getSender } from "../config/ChatLogics";
 import { ChatState } from "../context/ChatProvider";
+import ChatMessage from "./ChatMessage";
 import Loader from "./Loader";
 import ProfileModel from "./ProfileModel";
-import ChatMessage from "./ChatMessage";
+import { ImageUpload } from "./UploadImage";
 import UpdateGroupChatModal from "./group-chat/UpdateGroupChatModal";
-import { IoHappyOutline, IoAddCircleOutline } from "react-icons/io5";
-import io from "socket.io-client";
 const ENDPOINT = "http://localhost:3000";
 var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const { user, selectedChat, setSelectedChat, notification, setNotification } = ChatState();
+  const [selectedFile, setSelectedFile] = useState([]);
+  const [preview, setPreview] = useState([]);
   const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState();
+  const [newMessage, setNewMessage] = useState({ text: "", images: [] });
   const [loading, setLoading] = useState(false);
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing, setTyping] = useState();
   const [isTyping, setIsTyping] = useState();
+  const [isUpload, setIsUpload] = useState(false);
 
   const fetchAllMessages = async () => {
     if (!selectedChat) return;
@@ -42,32 +46,33 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       return;
     }
   };
-
   const sendMessage = async (e) => {
     if (e.key === "Enter" && newMessage) {
-      socket.emit("stop typing", selectedChat._id);
-      try {
-        const config = {
-          headers: {
-            "Content-type": "application/json",
-            Authorization: `Bearer ${user.token}`,
-          },
-        };
-        setNewMessage("");
-        const { data } = await axios.post(
-          "/api/message",
-          {
-            chatId: selectedChat._id,
-            content: newMessage,
-          },
-          config
-        );
-        socket.emit("new message", data);
-        setMessages([...messages, data]);
-      } catch (err) {
-        toast.error(err);
-        return;
-      }
+      uploadImages().then(async () => {
+        socket.emit("stop typing", selectedChat._id);
+        try {
+          const config = {
+            headers: {
+              "Content-type": "application/json",
+              Authorization: `Bearer ${user.token}`,
+            },
+          };
+          setNewMessage({ text: "", images: [] });
+          const { data } = await axios.post(
+            "/api/message",
+            {
+              chatId: selectedChat._id,
+              content: newMessage,
+            },
+            config
+          );
+          socket.emit("new message", data);
+          setMessages([...messages, data]);
+        } catch (err) {
+          toast.error(err);
+          return;
+        }
+      });
     }
   };
 
@@ -105,7 +110,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     selectedChatCompare = selectedChat;
   }, [selectedChat]);
 
-  console.log(notification);
   useEffect(() => {
     socket.on("message received", (newMessageReceived) => {
       if (!selectedChatCompare || selectedChatCompare._id !== newMessageReceived.chatId._id) {
@@ -122,7 +126,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     saveNotification();
   }, [notification]);
   const typingHandler = (e) => {
-    setNewMessage(e.target.value);
+    setNewMessage({ text: e.target.value, images: newMessage.images });
     if (!socketConnected) return;
     if (!typing) {
       setTimeout(() => {
@@ -142,6 +146,24 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     }, timerLength);
   };
 
+  const uploadImages = async () => {
+    await Promise.all(
+      selectedFile.map(async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("cloud_name", process.env.REACT_APP_CLOUD_NAME);
+        formData.append("upload_preset", process.env.REACT_APP_UPLOAD_PRESET);
+        formData.append("timestamp", (Date.now() / 1000) | 0);
+
+        const res = await axios.post(`https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`, formData, {
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        });
+        newMessage.images = [...newMessage.images, res.data.secure_url];
+      })
+    );
+    setSelectedFile([]);
+    setPreview([]);
+  };
   return (
     <>
       {selectedChat ? (
@@ -186,10 +208,19 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               </div>
             )}
           </Box>
+          {preview && (
+            <Box display={"flex"} maxHeight={"100px"} w={"full"} gap={"5px"} justifyContent={"flex-start"} bg={"gray.300"}>
+              {preview.map((image) => (
+                <Image objectFit={"contain"} width={"100px"} src={image} />
+              ))}
+            </Box>
+          )}
+
           <FormControl w='100%' paddingX='0.5rem' alignItems='center' d='flex' onKeyDown={sendMessage} isRequired mt={{ base: "1", md: "3" }} borderRadius='8px'>
+            <ImageUpload selectedFile={selectedFile} setSelectedFile={setSelectedFile} preview={preview} setPreview={setPreview} />
             <IconButton aria-label='Search database' icon={<IoHappyOutline fontSize='1.5rem' color='#fff' />} backgroundColor='rgba(76, 175, 80, 0.4)' borderRadius='full' mx='0.2rem' />
             <IconButton aria-label='Search database' icon={<IoAddCircleOutline fontSize='1.5rem' color='#fff' />} backgroundColor='rgba(76, 175, 80, 0.4)' borderRadius='full' mx='0.2rem' />
-            <Input variant='outline' bg='#003de8' h='4rem' color='#fff' placeholder='Nhập một tin nhắn...' onChange={typingHandler} value={newMessage} borderRadius='full' mx='0.2rem' />
+            <Input variant='outline' bg='#003de8' h='4rem' color='#fff' placeholder='Nhập một tin nhắn...' onChange={typingHandler} value={newMessage.text} borderRadius='full' mx='0.2rem' />
           </FormControl>
         </>
       ) : (

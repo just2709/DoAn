@@ -2,12 +2,12 @@ import React from "react";
 import ScrollableFeed from "react-scrollable-feed";
 import { isLastMessage, isSameSender, isSameSenderMargin, isSameUser } from "../config/ChatLogics";
 import { ChatState } from "../context/ChatProvider";
-import { Tooltip, Avatar } from "@chakra-ui/react";
+import { Tooltip, Avatar, Image } from "@chakra-ui/react";
 
-const ScrollableChat = ({ messages }) => {
+const ChatMessage = ({ messages }) => {
   const { user } = ChatState();
   return (
-    <ScrollableFeed>
+    <ScrollableFeed forceScroll={true}>
       {messages &&
         messages.map((message, index) => (
           <div style={{ display: "flex" }} key={message._id}>
@@ -25,7 +25,8 @@ const ScrollableChat = ({ messages }) => {
                 marginLeft: isSameSenderMargin(messages, message, index, user.user._id),
                 marginTop: isSameUser(messages, message, index, user.user._id) ? 3 : 10,
               }}>
-              {message.content}
+              {message.content.text}
+              {message.content.images && message.content.images.map((e) => <Image src={e} />)}
             </span>
           </div>
         ))}
@@ -33,4 +34,4 @@ const ScrollableChat = ({ messages }) => {
   );
 };
 
-export default ScrollableChat;
+export default ChatMessage;

@@ -32,9 +32,9 @@ const Register = () => {
     if (pics.type === "image/png") {
       const data = new FormData();
       data.append("file", pics);
-      data.append("upload_preset", "ChatApp");
-      data.append("cloud_name", "dxzpcalac");
-      fetch("https://api.cloudinary.com/v1_1/dxzpcalac/image/upload", {
+      data.append("upload_preset", process.env.REACT_APP_UPLOAD_PRESET);
+      data.append("cloud_name", process.env.REACT_APP_CLOUD_NAME);
+      fetch(`https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`, {
         method: "post",
         body: data,
       })
