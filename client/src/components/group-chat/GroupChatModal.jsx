@@ -23,7 +23,7 @@ const GroupChatModal = ({ children }) => {
     setSearch(query);
     if (!query) {
       // ? if query string is empty
-      toast.info("please search to add users");
+      toast.info("Hãy tìm để thêm thành viên mới");
     }
     setLoading(true);
     try {
@@ -43,7 +43,7 @@ const GroupChatModal = ({ children }) => {
   const handleSelectUser = (user) => {
     console.log(user);
     if (selectedUser.includes(user)) {
-      toast.info("User already added to the Group");
+      toast.info("Người dùng này đã có trong nhóm");
       return;
     }
     setSelectedUser([...selectedUser, user]);
@@ -53,11 +53,11 @@ const GroupChatModal = ({ children }) => {
   };
   const handleSubmit = async () => {
     if (!groupChatName || !selectedUser) {
-      toast.info("Please fill in all the required fields");
+      toast.info("Hãy nhập hết các trường");
       return;
     }
-    if (selectedUser.length <= 2) {
-      toast.info("Group must have at least 3 members");
+    if (selectedUser.length < 2) {
+      toast.info("Nhóm phải có ít nhất 3 thành viên");
       return;
     }
     // create chat
@@ -74,7 +74,7 @@ const GroupChatModal = ({ children }) => {
       setChats([data, ...chats]);
       onClose();
       setSubmitLoading(false);
-      toast.success(`${groupChatName} successfully created`);
+      toast.success(`${groupChatName} được tạo thành công`);
       setSelectedUser([]);
     } catch (err) {
       toast.error(err);

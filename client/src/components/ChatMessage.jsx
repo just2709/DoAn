@@ -2,7 +2,8 @@ import React from "react";
 import ScrollableFeed from "react-scrollable-feed";
 import { isLastMessage, isSameSender, isSameSenderMargin, isSameUser } from "../config/ChatLogics";
 import { ChatState } from "../context/ChatProvider";
-import { Tooltip, Avatar, Image } from "@chakra-ui/react";
+import { Tooltip, Avatar, Image, Box } from "@chakra-ui/react";
+import { IoDocumentOutline } from "react-icons/io5";
 
 const ChatMessage = ({ messages }) => {
   const { user } = ChatState();
@@ -10,7 +11,7 @@ const ChatMessage = ({ messages }) => {
     <ScrollableFeed forceScroll={true}>
       {messages &&
         messages.map((message, index) => (
-          <div style={{ display: "flex" }} key={message._id}>
+          <div style={{ display: "flex" }} key={message._id + Math.random(10)}>
             {(isSameSender(messages, message, index, user.user._id) || isLastMessage(messages, index, user.user._id)) && (
               <Tooltip label={message.sender.name} placement='bottom-start' hasArrow>
                 <Avatar mt='20px' mr='1' size='xs' cursor='pointer' name={message.sender.name} src={message.sender.image} />
@@ -26,7 +27,19 @@ const ChatMessage = ({ messages }) => {
                 marginTop: isSameUser(messages, message, index, user.user._id) ? 3 : 10,
               }}>
               {message.content.text}
-              {message.content.images && message.content.images.map((e) => <Image src={e} />)}
+              {message.content.images &&
+                message.content.images.map((e, index) =>
+                  e.endsWith("pdf") ? (
+                    <a key={index} target='_blank' rel='noreferrer' href={e}>
+                      <Box>
+                        <IoDocumentOutline fontSize={50} />
+                      </Box>
+                      Xem tệp tin
+                    </a>
+                  ) : (
+                    <Image key={index} src={e} />
+                  )
+                )}
             </span>
           </div>
         ))}

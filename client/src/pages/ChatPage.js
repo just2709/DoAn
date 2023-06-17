@@ -11,15 +11,13 @@ const ChatPage = () => {
   const [fetchAgain, setFetchAgain] = useState(false);
 
   return (
-    <div style={{ height: "100vh" }} className="chatContainer">
+    <div style={{ height: "100vh" }} className='chatContainer'>
       {user && <SideDrawer />}
-      <Box d="flex" justifyContent="space-between" w="100%" h="91.rvh" p="10px">
+      <Box d='flex' justifyContent='space-between' w='100%' h='91.rvh' p='10px'>
         {user && <MyChats fetchAgain={fetchAgain} />}
-        {user && (
-          <ChatBox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
-        )}
+        {user && <ChatBox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />}
       </Box>
-      <ToastContainer theme="colored" />
+      <ToastContainer theme='colored' />
     </div>
   );
 };

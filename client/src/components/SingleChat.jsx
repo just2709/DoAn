@@ -1,8 +1,33 @@
-import { Avatar, Box, Divider, FormControl, Heading, IconButton, Image, Input, Text, Tooltip } from "@chakra-ui/react";
+import {
+  Avatar,
+  Box,
+  Button,
+  Divider,
+  FormControl,
+  Heading,
+  IconButton,
+  Image,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
+  Tooltip,
+  useDisclosure,
+} from "@chakra-ui/react";
 import axios from "axios";
+import EmojiPicker, { SuggestionMode } from "emoji-picker-react";
 import React, { useEffect, useState } from "react";
 import { IoIosArrowBack } from "react-icons/io";
-import { IoAddCircleOutline, IoHappyOutline } from "react-icons/io5";
+import { IoDocumentOutline, IoHappyOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import io from "socket.io-client";
 import { getSender } from "../config/ChatLogics";
@@ -10,6 +35,7 @@ import { ChatState } from "../context/ChatProvider";
 import ChatMessage from "./ChatMessage";
 import Loader from "./Loader";
 import ProfileModel from "./ProfileModel";
+import TabChoseSticker from "./TabChoseSticker";
 import { ImageUpload } from "./UploadImage";
 import UpdateGroupChatModal from "./group-chat/UpdateGroupChatModal";
 const ENDPOINT = "http://localhost:3000";
@@ -25,8 +51,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing, setTyping] = useState();
   const [isTyping, setIsTyping] = useState();
-  const [isUpload, setIsUpload] = useState(false);
-
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [tabIndex, setTabIndex] = useState(0);
+  const [limitStickers, setLimitStickers] = useState(10);
+  const [offsetStickers, setOffSetStickers] = useState(0);
+  const [limitGifs, setLimitGifs] = useState(10);
+  const [offsetGifs, setOffSetGifs] = useState(0);
+  const [keyWordSticker, setKeyWordSticker] = useState("");
+  const [stickers, setStickers] = useState([]);
+  const [gifs, setGifs] = useState([]);
+  const [isUploadFile, setIsUploadFile] = useState(false);
   const fetchAllMessages = async () => {
     if (!selectedChat) return;
     try {
@@ -37,6 +71,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         },
       };
       const { data } = await axios.get(`/api/message/${selectedChat._id}`, config);
+      console.log(data);
       setMessages(data);
       setLoading(false);
       socket.emit("join chat", selectedChat._id);
@@ -48,6 +83,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
   const sendMessage = async (e) => {
     if (e.key === "Enter" && newMessage) {
+      setIsUploadFile(false);
       uploadImages().then(async () => {
         socket.emit("stop typing", selectedChat._id);
         try {
@@ -73,6 +109,38 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           return;
         }
       });
+      onClose(true);
+    }
+  };
+
+  const sendSticker = async (e) => {
+    setLoading(true);
+    newMessage.images = [e];
+    try {
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      // setNewMessage({ text: "", images: [] });
+      const { data } = await axios.post(
+        "/api/message",
+        {
+          chatId: selectedChat._id,
+          content: newMessage,
+        },
+        config
+      );
+      newMessage.images = [];
+      socket.emit("new message", data);
+      onClose(true);
+      setMessages([...messages, data]);
+      setLoading(false);
+    } catch (err) {
+      setLoading(false);
+      toast.error(err);
+      return;
     }
   };
 
@@ -129,13 +197,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     setNewMessage({ text: e.target.value, images: newMessage.images });
     if (!socketConnected) return;
     if (!typing) {
-      setTimeout(() => {
-        setTyping(true);
-        socket.emit("typing", selectedChat._id);
-      }, 1000);
+      setTyping(true);
+      socket.emit("typing", selectedChat._id);
+
+      setTimeout(() => {}, 1000);
     }
     let lastTypingTime = new Date().getTime();
-    var timerLength = 3000;
+    var timerLength = 1000;
     setTimeout(() => {
       var timeNow = new Date().getTime();
       var timeDiff = timeNow - lastTypingTime;
@@ -147,23 +215,62 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   const uploadImages = async () => {
-    await Promise.all(
-      selectedFile.map(async (file) => {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("cloud_name", process.env.REACT_APP_CLOUD_NAME);
-        formData.append("upload_preset", process.env.REACT_APP_UPLOAD_PRESET);
-        formData.append("timestamp", (Date.now() / 1000) | 0);
+    if (selectedFile) {
+      await Promise.all(
+        selectedFile.map(async (file) => {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("cloud_name", process.env.REACT_APP_CLOUD_NAME);
+          formData.append("upload_preset", process.env.REACT_APP_UPLOAD_PRESET);
+          formData.append("timestamp", (Date.now() / 1000) | 0);
 
-        const res = await axios.post(`https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`, formData, {
-          headers: { "X-Requested-With": "XMLHttpRequest" },
-        });
-        newMessage.images = [...newMessage.images, res.data.secure_url];
-      })
-    );
-    setSelectedFile([]);
-    setPreview([]);
+          const res = await axios.post(`https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`, formData, {
+            headers: { "X-Requested-With": "XMLHttpRequest" },
+          });
+          newMessage.images = [...newMessage.images, res.data.secure_url];
+        })
+      );
+      setSelectedFile([]);
+      setPreview([]);
+    }
   };
+
+  const handleSearchSticker = async () => {
+    const response = await fetch(
+      `https://api.giphy.com/v1/${tabIndex === 0 ? "gifs" : "stickers"}/search?api_key=${process.env.REACT_APP_GIFPHY_API}&q=${keyWordSticker}&limit=${
+        tabIndex === 0 ? limitGifs : limitStickers
+      }&offset=${tabIndex === 0 ? offsetGifs : offsetStickers}`
+    );
+    const { data } = await response.json();
+    const listUrl = data.map((gif) => gif.images.downsized_medium.url);
+    switch (tabIndex) {
+      case 0:
+        setGifs([...listUrl]);
+        break;
+      case 1:
+        setStickers([...listUrl]);
+        break;
+      default:
+        return;
+    }
+  };
+
+  useEffect(() => {
+    handleSearchSticker();
+  }, [limitGifs, limitStickers]);
+
+  function onClick(emojiData, event) {
+    setNewMessage({ text: newMessage.text + emojiData.emoji, images: [...newMessage.images] });
+  }
+  // const handleFileSelect = (event) => {
+  //   const file = event.target.files[0];
+  //   const reader = new FileReader();
+  //   reader.onload = () => {
+  //     const fileData = reader.result;
+  //     socket.emit("uploadFile", fileData);
+  //   };
+  //   reader.readAsArrayBuffer(file);
+  // };
   return (
     <>
       {selectedChat ? (
@@ -197,29 +304,35 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             ) : (
               <div className='message'>
                 {<ChatMessage messages={messages} />}
-                {isTyping && user.user !== getSender(user.user, selectedChat.users) && (
-                  <Box d='flex' mt='3'>
+                {/* {isTyping && user.user !== getSender(user.user, selectedChat.users) && ( */}
+                {/* <Box d='flex' mt='3'>
                     <Tooltip placement='bottom-start' hasArrow>
                       <Avatar mr='1' size='xs' cursor='pointer' name={getSender(user.user, selectedChat.users).name} src={getSender(user.user, selectedChat.users).image} />
                     </Tooltip>
                     <Text color='#fff'>Đang nhập...</Text>
-                  </Box>
-                )}
+                  </Box> */}
+                {/* )} */}
               </div>
             )}
           </Box>
-          {preview && (
-            <Box display={"flex"} maxHeight={"100px"} w={"full"} gap={"5px"} justifyContent={"flex-start"} bg={"gray.300"}>
-              {preview.map((image) => (
-                <Image objectFit={"contain"} width={"100px"} src={image} />
-              ))}
-            </Box>
-          )}
+          <Box display={"flex"} maxHeight={"100px"} w={"full"} gap={"5px"} justifyContent={"flex-start"} bg={"gray.300"}>
+            {preview &&
+              preview.map((image, index) => {
+                return <Image key={index} objectFit={"contain"} width={"100px"} src={image} />;
+              })}
+            {isUploadFile && <IoDocumentOutline fontSize={50} />}
+          </Box>
 
           <FormControl w='100%' paddingX='0.5rem' alignItems='center' d='flex' onKeyDown={sendMessage} isRequired mt={{ base: "1", md: "3" }} borderRadius='8px'>
-            <ImageUpload selectedFile={selectedFile} setSelectedFile={setSelectedFile} preview={preview} setPreview={setPreview} />
-            <IconButton aria-label='Search database' icon={<IoHappyOutline fontSize='1.5rem' color='#fff' />} backgroundColor='rgba(76, 175, 80, 0.4)' borderRadius='full' mx='0.2rem' />
-            <IconButton aria-label='Search database' icon={<IoAddCircleOutline fontSize='1.5rem' color='#fff' />} backgroundColor='rgba(76, 175, 80, 0.4)' borderRadius='full' mx='0.2rem' />
+            <ImageUpload setIsUploadFile={setIsUploadFile} selectedFile={selectedFile} setSelectedFile={setSelectedFile} preview={preview} setPreview={setPreview} />
+            <IconButton
+              onClick={onOpen}
+              aria-label='Search database'
+              icon={<IoHappyOutline fontSize='1.5rem' color='#fff' />}
+              backgroundColor='rgba(76, 175, 80, 0.4)'
+              borderRadius='full'
+              mx='0.2rem'
+            />
             <Input variant='outline' bg='#003de8' h='4rem' color='#fff' placeholder='Nhập một tin nhắn...' onChange={typingHandler} value={newMessage.text} borderRadius='full' mx='0.2rem' />
           </FormControl>
         </>
@@ -234,6 +347,84 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           </Text>
         </Box>
       )}
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Chọn nhãn dán</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {tabIndex === 2 ? (
+              <FormControl w='100%' paddingX='0.5rem' alignItems='center' d='flex' onKeyDown={sendMessage} isRequired borderRadius='8px'>
+                <Input variant='outline' bg='#003de8' color='#fff' placeholder='Nhập một tin nhắn...' onChange={typingHandler} value={newMessage.text} borderRadius='full' />
+              </FormControl>
+            ) : (
+              <Box display={"flex"} w={"100%"}>
+                <Input
+                  variant='outline'
+                  placeholder='Tìm kiếm...'
+                  onChange={(e) => {
+                    setKeyWordSticker(e.target.value);
+                    if (tabIndex === 0) {
+                      setLimitGifs(10);
+                      setOffSetGifs(0);
+                    } else if (tabIndex === 1) {
+                      setLimitStickers(10);
+                      setOffSetStickers(0);
+                    }
+                  }}
+                  value={keyWordSticker}
+                  borderRadius='full'
+                  mx='0.2rem'
+                />
+                <Button variant='outline' onClick={handleSearchSticker} colorScheme='blue'>
+                  Tìm kiếm
+                </Button>
+              </Box>
+            )}
+
+            <Tabs size='md' variant='enclosed' mt={2} onChange={(index) => setTabIndex(index)}>
+              <TabList>
+                <Tab>Gif</Tab>
+                <Tab>Nhãn dán</Tab>
+                <Tab>Biểu tượng cảm xúc</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel>
+                  {gifs.length > 0 && (
+                    <>
+                      <TabChoseSticker sendMessage={sendSticker} listItem={gifs} />
+                      <Button
+                        onClick={() => {
+                          const limit = limitGifs;
+                          setLimitGifs(limit + 10);
+                          setOffSetGifs(offsetGifs + limit);
+                        }}>
+                        Tải thêm
+                      </Button>
+                    </>
+                  )}
+                </TabPanel>
+                <TabPanel>
+                  {stickers.length > 0 && (
+                    <>
+                      <TabChoseSticker sendMessage={sendSticker} listItem={stickers} />
+                      <Button
+                        onClick={() => {
+                          const limit = limitStickers;
+                          setLimitStickers(limit + 10);
+                          setOffSetStickers(offsetGifs + limit);
+                        }}>
+                        Tải thêm
+                      </Button>
+                    </>
+                  )}
+                </TabPanel>
+                <TabPanel>{tabIndex === 2 && <EmojiPicker onEmojiClick={onClick} suggestedEmojisMode={SuggestionMode.RECENT} searchPlaceHolder='Tìm kiếm...' />}</TabPanel>
+              </TabPanels>
+            </Tabs>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 };

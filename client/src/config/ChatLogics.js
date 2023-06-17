@@ -3,7 +3,9 @@ export const getSender = (loggedUser, users) => {
 };
 
 export const isSameSender = (messages, mess, index, userId) => {
-  return index < messages.length - 1 && (messages[index + 1].sender._id !== mess.sender._id || messages[index + 1].sender._id === undefined) && messages[index].sender._id !== userId;
+  return index < messages.length - 1 
+  && (messages[index + 1].sender._id !== mess.sender._id || messages[index + 1].sender._id === undefined) 
+  && messages[index].sender._id !== userId;
 };
 
 export const isLastMessage = (messages, index, userId) => {
@@ -11,7 +13,9 @@ export const isLastMessage = (messages, index, userId) => {
 };
 
 export const isSameSenderMargin = (messages, mess, index, userId) => {
-  if (index < messages.length - 1 && messages[index + 1].sender._id === mess.sender._id && messages[index].sender._id !== userId) {
+  if (index < messages.length - 1 
+    && messages[index + 1].sender._id === mess.sender._id 
+    && messages[index].sender._id !== userId) {
     return 33;
   } else if (
     (index < messages.length - 1 && messages[index + 1].sender._id !== mess.sender._id && messages[index].sender._id !== userId) ||

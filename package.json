@@ -12,15 +12,22 @@
   "author": "vars7899",
   "license": "ISC",
   "dependencies": {
+    "@hookform/resolvers": "^3.1.0",
     "bcrypt": "^5.0.1",
     "colors": "^1.4.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "express-async-handler": "^1.2.0",
+    "googleapis": "^118.0.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.3.0",
-    "socket.io": "^4.4.1"
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.2",
+    "react-hook-form": "^7.43.9",
+    "sharp": "^0.32.1",
+    "socket.io": "^4.4.1",
+    "yup": "^1.1.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"

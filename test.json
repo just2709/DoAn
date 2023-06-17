@@ -1,0 +1,73 @@
+{
+  "chatId": {
+    "_id": "646b880d0b23e5f146de37e7",
+    "chatName": "sender",
+    "isGroupChat": false,
+    "latestMessage": {
+      "_id": "646b9679619fd3f0fad51601",
+      "content": {
+        "text": "Xin chào",
+        "images": ["http://res.cloudinary.com/dxzpcalac/image/upload/v1684767943/qezjykqyyirowgmyn90z.png"],
+        "file": ""
+      },
+      "sender": {
+        "email": "test4@gmail.com",
+        "image": "http://res.cloudinary.com/dxzpcalac/image/upload/v1684767943/qezjykqyyirowgmyn90z.png",
+        "name": "test",
+        "_id": "646b84c4fff1322d36c38d01"
+      },
+      "updatedAt": "2023-05-22T16:21:13.405Z",
+      "createdAt": "2023-05-22T16:21:13.405Z"
+    },
+    "users": [
+      {
+        "email": "test1@gmail.com",
+        "image": "http://res.cloudinary.com/dxzpcalac/image/upload/v1684767943/qezjykqyyirowgmyn90z.png",
+        "name": "Nguyễn Văn B",
+        "_id": "646b84c4fff1322d36c38d01"
+      },
+      {
+        "email": "test2@gmail.com",
+        "image": "http://res.cloudinary.com/dxzpcalac/image/upload/v1684767943/qezjykqyyirowgmyn90z.png",
+        "name": "Nguyễn Văn A",
+        "_id": "646b84c4fff1322d36c38d01"
+      }
+    ],
+    "createdAt": "2023-05-22T15:19:41.673Z",
+    "updatedAt": "2023-05-22T16:21:13.414Z"
+  },
+  "messages": [
+    {
+      "_id": "646b9679619fd3f0fad51601",
+      "content": {
+        "text": "Xin chào",
+        "images": ["http://res.cloudinary.com/dxzpcalac/image/upload/v1684767943/qezjykqyyirowgmyn90z.png"],
+        "file": ""
+      },
+      "sender": {
+        "email": "test4@gmail.com",
+        "image": "http://res.cloudinary.com/dxzpcalac/image/upload/v1684767943/qezjykqyyirowgmyn90z.png",
+        "name": "test",
+        "_id": "646b84c4fff1322d36c38d01"
+      },
+      "updatedAt": "2023-05-22T16:21:13.405Z",
+      "createdAt": "2023-05-22T16:21:13.405Z"
+    },
+    {
+      "_id": "646b9679619fd3f0fad51601",
+      "content": {
+        "text": "Xin chào tôi là A",
+        "images": ["http://res.cloudinary.com/dxzpcalac/image/upload/v1684767943/qezjykqyyirowgmyn90z.png"],
+        "file": ""
+      },
+      "sender": {
+        "email": "test4@gmail.com",
+        "image": "http://res.cloudinary.com/dxzpcalac/image/upload/v1684767943/qezjykqyyirowgmyn90z.png",
+        "name": "test",
+        "_id": "646b84c4fff1322d36c38d01"
+      },
+      "updatedAt": "2023-05-22T16:21:13.405Z",
+      "createdAt": "2023-05-22T16:21:13.405Z"
+    }
+  ]
+}

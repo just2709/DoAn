@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
 import { Box, Container, Grid, GridItem, Text, Tabs, TabList, Tab, TabPanels, TabPanel } from "@chakra-ui/react";
-import Login from "../components/Login";
-import Register from "../components/Register";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import Login from "../components/auth/Login";
+import Register from "../components/auth/Register";
 
 const Homepage = () => {
   const navigate = useNavigate();
@@ -38,6 +38,9 @@ const Homepage = () => {
                 </TabPanel>
               </TabPanels>
             </Tabs>
+            <Box p='4'>
+              <Link to='/forgotPassword'>Quên mật khẩu?</Link>
+            </Box>
           </Box>
         </Container>
       </GridItem>

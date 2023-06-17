@@ -9,7 +9,7 @@ import { getSender } from "../config/ChatLogics";
 import GroupChatModal from "./group-chat/GroupChatModal";
 
 const MyChats = ({ fetchAgain }) => {
-  const [loggedUser, setLoggedUser] = useState();
+  // const [loggedUser, setLoggedUser] = useState();
   const { selectedChat, setSelectedChat, user, chats, setChats } = ChatState();
 
   const fetchChats = async () => {
@@ -26,11 +26,10 @@ const MyChats = ({ fetchAgain }) => {
     }
   };
   useEffect(() => {
-    setLoggedUser(JSON.parse(localStorage.getItem("chatAppUser")));
+    // setLoggedUser(JSON.parse(localStorage.getItem("chatAppUser")));
     fetchChats();
   }, [fetchAgain]);
-
-  if (!loggedUser) {
+  if (!user) {
     return <Loader />;
   }
   return (
@@ -64,32 +63,34 @@ const MyChats = ({ fetchAgain }) => {
       <Box d='flex' flexDir='column' p={3} bg='#f8f8f8' w='100%' h='100%' borderRadius='lg' overflowY='hidden'>
         {chats ? (
           <Stack overflowY='scroll'>
-            {chats.map((chat, index) => (
-              <div key={index}>
-                <Box
-                  onClick={() => setSelectedChat(chat)}
-                  cursor='pointer'
-                  bg={selectedChat === chat ? "#003de8" : "e8e8e8"}
-                  color={selectedChat === chat ? "#fff" : "#000"}
-                  px='3'
-                  py='2'
-                  borderRadius='lg'
-                  transition='200ms ease-in-out'
-                  d='flex'>
-                  <Avatar
-                    size='sm'
+            {chats.map((chat, index) => {
+              return (
+                <div key={index}>
+                  <Box
+                    onClick={() => setSelectedChat(chat)}
                     cursor='pointer'
-                    bg={chat.isGroupChat ? "#003de8" : null}
-                    icon={chat.isGroupChat && <IoMdPeople fontSize='1.5rem' color='#fff' />}
-                    src={!chat.isGroupChat && getSender(loggedUser.user, chat.users)?.image}
-                    name={!chat.isGroupChat && getSender(loggedUser.user, chat.users).name}
-                    mr='4'
-                  />
-                  <Text fontSize='1.25rem'>{!chat.isGroupChat ? getSender(loggedUser?.user, chat?.users)?.name : chat.chatName}</Text>
-                </Box>
-                <Divider />
-              </div>
-            ))}
+                    bg={selectedChat?._id === chat?._id ? "#003de8" : "e8e8e8"}
+                    color={selectedChat?._id === chat?._id ? "#fff" : "#000"}
+                    px='3'
+                    py='2'
+                    borderRadius='lg'
+                    transition='200ms ease-in-out'
+                    d='flex'>
+                    <Avatar
+                      size='sm'
+                      cursor='pointer'
+                      bg={chat.isGroupChat ? "#003de8" : null}
+                      icon={chat.isGroupChat && <IoMdPeople fontSize='1.5rem' color='#fff' />}
+                      src={!chat.isGroupChat && getSender(user, chat.users)?.image}
+                      name={!chat.isGroupChat && getSender(user, chat.users).name}
+                      mr='4'
+                    />
+                    <Text fontSize='1.25rem'>{!chat.isGroupChat ? getSender(user, chat?.users)?.name : chat.chatName}</Text>
+                  </Box>
+                  <Divider />
+                </div>
+              );
+            })}
           </Stack>
         ) : (
           <Loader />

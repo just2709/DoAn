@@ -28,7 +28,6 @@ import UserBadgeItem from "../UserBadgeItem";
 import UserListItem from "../UserListItem";
 
 const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchAllMessages }) => {
-  const [groupChatName, setGroupChatName] = useState();
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -36,7 +35,8 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchAllMessages }) =
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { selectedChat, user, setSelectedChat } = ChatState();
-
+  const [groupChatName, setGroupChatName] = useState(selectedChat.chatName);
+  console.log(selectedChat);
   const handleRemoveUser = async (userToBeRemoved) => {
     if (user.user._id !== selectedChat.groupAdmin._id) {
       toast.info("Bạn không có quyền thực hiện");
@@ -168,6 +168,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchAllMessages }) =
       setLoading(false);
     }
   };
+  console.log(selectedChat.users[0]);
   return (
     <>
       <Button onClick={onOpen} d={{ base: "flex" }}>
@@ -179,7 +180,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchAllMessages }) =
         <ModalContent>
           <ModalHeader fontSize='1.75rem' d='flex' justifyContent='center' textTransform='capitalize'>
             <FormControl d='flex' mt='10' width='100%'>
-              <Input placeholder='Chat Name' value={selectedChat.chatName} mb='1' onChange={(e) => setGroupChatName(e.target.value)} />
+              <Input placeholder='Chat Name' value={groupChatName} mb='1' onChange={(e) => setGroupChatName(e.target.value)} />
               <Button variant='solid' bg='#003de8' color='#fff' colorScheme='blackAlpha' ml='1' isLoading={renameLoading} onClick={handleRename}>
                 Lưu
               </Button>
@@ -192,7 +193,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchAllMessages }) =
             <Box>
               <Text>Danh sách thành viên</Text>
               {selectedChat.users.map((user) => (
-                <UserBadgeItem key={user._id} user={user} handleFunction={() => handleRemoveUser(user)} />
+                <UserBadgeItem isAdmin={selectedChat.groupAdmin.email === user.email} key={user._id} user={user} handleFunction={() => handleRemoveUser(user)} />
               ))}
             </Box>
 

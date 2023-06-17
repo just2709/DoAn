@@ -9,6 +9,7 @@ const messageSchema = new mongoose.Schema(
     content: {
       text: { type: String, trim: true },
       images: { type: Array },
+      file: { type: String, default: "" },
     },
     chatId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -22,3 +23,4 @@ const messageSchema = new mongoose.Schema(
 
 const Message = mongoose.model("Message", messageSchema);
 module.exports = Message;
+ 

@@ -14,10 +14,7 @@ const accessChat = asyncHandler(async (req, res) => {
 
   var isChat = await Chat.find({
     isGroupChat: false,
-    $and: [
-      { users: { $elemMatch: { $eq: req.user._id } } },
-      { users: { $elemMatch: { $eq: userId } } },
-    ],
+    $and: [{ users: { $elemMatch: { $eq: req.user._id } } }, { users: { $elemMatch: { $eq: userId } } }],
   })
     .populate("users", "-password")
     .populate("latestMessage");
@@ -38,10 +35,7 @@ const accessChat = asyncHandler(async (req, res) => {
 
     try {
       const createChat = await Chat.create(chatData);
-      const fullChat = await Chat.findOne({ _id: createChat._id }).populate(
-        "users",
-        "-password"
-      );
+      const fullChat = await Chat.findOne({ _id: createChat._id }).populate("users", "-password");
       res.status(200).send(fullChat);
     } catch (err) {
       res.status(400);
@@ -100,9 +94,7 @@ const createGroupChat = asyncHandler(async (req, res) => {
       isGroupChat: true,
       groupAdmin: req.user,
     });
-    const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
-      .populate("users", "-password")
-      .populate("groupAdmin", "-password");
+    const fullGroupChat = await Chat.findOne({ _id: groupChat._id }).populate("users", "-password").populate("groupAdmin", "-password");
 
     res.status(200).json(fullGroupChat);
   } catch (err) {

@@ -1,9 +1,6 @@
 const router = require("express").Router();
 const auth = require("../middleware/authMiddleware");
-const {
-  sendMessage,
-  fetchMessage,
-} = require("../controllers/messageControllers");
+const { sendMessage, fetchMessage } = require("../controllers/messageControllers");
 
 // Route to send the message to the recipient
 router.route("/").post(auth, sendMessage);

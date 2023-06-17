@@ -27,7 +27,7 @@ const SideDrawer = () => {
 
   const handleSearch = async () => {
     if (!search) {
-      return toast.info("Please enter a query");
+      return toast.info("Hãy nhập từ khóa để tìm kiếm");
     }
     setLoading(true);
     try {
@@ -99,7 +99,7 @@ const SideDrawer = () => {
   return (
     <>
       <Box d='flex' justifyContent='space-between' alignItems='center' w='100%' p='10px 15px' backdropFilter='blur(5px)'>
-        <Tooltip label='Search to Connect' hasArrow placement='bottom-end'>
+        <Tooltip label='Tìm kiếm để kết nối' hasArrow placement='bottom-end'>
           <Button variant='ghost' colorScheme={"whiteAlpha"} onClick={onOpen}>
             <IoSearch />
             <Text d={{ base: "none", md: "flex" }} px='10'>
@@ -124,7 +124,6 @@ const SideDrawer = () => {
                   cursor='pointer'
                   onClick={() => {
                     removeNotification(notify.chatId._id);
-                    console.log(notify);
                     setSelectedChat(notify.chatId);
                     setNotification(notification.filter((n) => n !== notify));
                   }}>

@@ -1,8 +1,8 @@
 import { FormControl, FormLabel, IconButton, Input } from "@chakra-ui/react";
 import { useEffect, useRef } from "react";
-import { IoImagesOutline } from "react-icons/io5";
+import { IoAddCircleOutline, IoImagesOutline } from "react-icons/io5";
 
-export const ImageUpload = ({ selectedFile, setSelectedFile, preview, setPreview }) => {
+export const ImageUpload = ({ selectedFile, setSelectedFile, preview, setPreview, setIsUploadFile }) => {
   const inputRef = useRef(null);
 
   const onSelectFile = (e) => {
@@ -15,8 +15,11 @@ export const ImageUpload = ({ selectedFile, setSelectedFile, preview, setPreview
 
     const listImage = [];
     listFiles.map((file) => {
-      const objectUrl = URL.createObjectURL(file);
-      listImage.push(objectUrl);
+      if (file.type.includes("image")) {
+        const objectUrl = URL.createObjectURL(file);
+        listImage.push(objectUrl);
+      }
+      setIsUploadFile(true);
     });
     setSelectedFile(listFiles);
     setPreview(listImage);
@@ -29,7 +32,7 @@ export const ImageUpload = ({ selectedFile, setSelectedFile, preview, setPreview
         <IconButton
           aria-label=''
           onClick={() => inputRef.current.click()}
-          icon={<IoImagesOutline fontSize='1.5rem' color='#fff' />}
+          icon={<IoAddCircleOutline fontSize='1.5rem' color='#fff' />}
           backgroundColor='rgba(76, 175, 80, 0.4)'
           borderRadius='full'
           mx='0.2rem'

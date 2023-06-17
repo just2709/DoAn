@@ -1,9 +1,8 @@
 const mongoose = require("mongoose");
 
 const dbConnect = async () => {
-  console.log(process.env.MONGODB_URI);
   try {
-    const connectionString = await mongoose.connect("mongodb://localhost:27017/chatAPP", {
+    const connectionString = await mongoose.connect(process.env.MONGODB_URI, {
       useUnifiedTopology: true,
       useNewUrlParser: true,
     });
